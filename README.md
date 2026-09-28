@@ -2,52 +2,72 @@
 
 [![CI](https://github.com/MykolaDotsenko/movieshelf/actions/workflows/ci.yml/badge.svg)](https://github.com/MykolaDotsenko/movieshelf/actions/workflows/ci.yml)
 ![Python 3.13–3.14](https://img.shields.io/badge/Python-3.13%E2%80%933.14-3776AB?logo=python&logoColor=white)
-![Django 5.2 LTS](https://img.shields.io/badge/Django-5.2%20LTS-092E20?logo=django&logoColor=white)
+![Django 5.2](https://img.shields.io/badge/Django-5.2-092E20?logo=django&logoColor=white)
 ![Coverage 97%](https://img.shields.io/badge/coverage-97%25-brightgreen)
 
-**A modern Django movie catalog focused on clean backend architecture, secure authentication, relational data integrity, and reliable engineering practices.**
+**A Django movie catalog used to demonstrate relational modelling, PostgreSQL search, authentication and production-oriented backend checks.**
 
-MovieShelf lets users browse movies, genres, cast and directors, search the catalog, explore filmographies, and create accounts through Django's built-in authentication system.
+There is no hosted public demo at the moment. The screenshots below are captured from the real application using the included fictional fixture.
 
-## Screenshots
-
-### Desktop home
-
-![MovieShelf desktop home](docs/screenshots/home-desktop.png)
-
-### Movie catalog
-
-![MovieShelf movie catalog](docs/screenshots/movies-desktop.png)
-
-### Mobile
+<p align="center">
+  <img src="docs/screenshots/home-desktop.png" alt="MovieShelf desktop home" width="49%">
+  <img src="docs/screenshots/movies-desktop.png" alt="MovieShelf movie catalog" width="49%">
+</p>
 
 <img src="docs/screenshots/home-mobile.png" alt="MovieShelf mobile home" width="390">
 
-> Screenshots are captured from the real Django application running with the included fictional demo fixture.
+## What the application does
 
-## Highlights
+- browse movies, genres, cast and directors;
+- open movie and person/filmography pages;
+- search the catalog;
+- sign up, sign in and sign out with Django authentication;
+- run from SQLite for zero-friction evaluation or PostgreSQL for the full search path.
 
-- **Django 5.2 LTS** with a clean `config/` + application structure
-- relational modeling for movies, genres, people, and participation roles
-- database-level constraints for ratings, durations, unique genres, and duplicate credits
-- PostgreSQL ranked full-text search with web-style queries, plus partial title/genre matching
-- movie detail pages with cast, directors, genres, ratings, trailers, and metadata
-- people directory with filmography
-- Django-native sign up, sign in, password validation, redirect-after-login, and CSRF-protected sign out
-- responsive server-rendered UI with **Bootstrap 5.3.8**
-- strict environment parsing with fail-fast production settings
-- SQLite for zero-friction local use and PostgreSQL verified in CI
-- database-backed `/health/` readiness endpoint
-- console logging with environment-controlled log level
-- deterministic fictional demo data via a Django fixture
-- Ruff, format checks, migration checks, dependency auditing, coverage, deployment checks, and Dependabot
-- Playwright browser flows and axe WCAG A/AA accessibility checks on desktop and mobile
-- Gunicorn + WhiteNoise production configuration
-- CI verified on **Python 3.13 and 3.14**, plus a real PostgreSQL service
+The demo fixture is fictional and does not redistribute movie posters or celebrity photographs.
+
+## Backend details worth reviewing
+
+### Relational integrity
+
+The schema models movies, people, genres and participation roles with database-backed rules for:
+
+- rating ranges;
+- positive durations;
+- unique genres;
+- duplicate cast/director credits.
+
+Important invariants do not rely only on form/UI validation.
+
+### PostgreSQL search
+
+SQLite keeps a simple `icontains` fallback for easy local setup.
+
+PostgreSQL uses Django's native search primitives:
+
+- `SearchVector`;
+- `SearchQuery(search_type="websearch")`;
+- `SearchRank`;
+- GIN full-text index for titles;
+- `pg_trgm` GIN indexes for partial title/genre matching.
+
+CI starts a real PostgreSQL service and runs the test suite against it, so PostgreSQL support is exercised rather than only documented.
+
+### Production configuration
+
+Environment parsing is strict: malformed boolean/integer configuration fails fast instead of silently changing behaviour.
+
+The app includes:
+
+- database-backed `/health/` readiness;
+- Gunicorn + WhiteNoise production configuration;
+- production Django security checks;
+- dependency auditing;
+- Render Blueprint configuration.
 
 ## Architecture
 
-MovieShelf deliberately uses Django's standard architecture instead of adding layers for their own sake:
+MovieShelf intentionally stays close to Django's standard structure:
 
 ```text
 URL
@@ -58,168 +78,32 @@ Model / ORM
  ↓
 Database
 
-Form → input validation
+Form     → input validation
 Template → presentation
 ```
 
-Important rules live close to the data and are enforced both by Django validation and database constraints.
+There is no extra repository/service layer whose only job would be to proxy Django ORM calls.
 
-## Project structure
+## Stack
 
-```text
-.
-├── config/
-│   ├── env.py
-│   ├── settings.py
-│   ├── urls.py
-│   ├── views.py
-│   └── tests/
-├── docs/
-│   └── screenshots/
-├── imdb/
-│   ├── fixtures/
-│   │   └── demo.json
-│   ├── migrations/
-│   ├── static/
-│   ├── templates/
-│   ├── tests/
-│   ├── admin.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── urls.py
-│   └── views.py
-├── LICENSE
-├── THIRD_PARTY.md
-├── manage.py
-├── requirements.txt
-├── requirements-dev.txt
-├── requirements-postgres.txt
-└── pyproject.toml
-```
+- Python 3.13 / 3.14
+- Django 5.2
+- PostgreSQL / SQLite
+- Bootstrap 5
+- Gunicorn
+- WhiteNoise
+- Ruff
+- Coverage
+- Playwright
+- axe-core
+- GitHub Actions
 
-## Local setup
+## Quality
 
-Create and activate a virtual environment:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-```
-
-Windows PowerShell:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-Install dependencies and create the database:
-
-```bash
-python -m pip install -r requirements.txt
-python manage.py migrate
-```
-
-Load the optional fictional demo catalog:
-
-```bash
-python manage.py loaddata demo
-```
-
-Run the application:
-
-```bash
-python manage.py runserver
-```
-
-Open `http://127.0.0.1:8000/`.
-
-The readiness endpoint is available at `http://127.0.0.1:8000/health/`.
-
-## Search architecture
-
-Local SQLite keeps a simple `icontains` fallback so cloning and evaluating the project remains frictionless.
-
-On PostgreSQL, MovieShelf uses Django's PostgreSQL search primitives:
-
-- `SearchVector` and `SearchQuery(search_type="websearch")`
-- `SearchRank` for ranked title results
-- a GIN full-text index for movie titles
-- `pg_trgm` GIN indexes for partial title and genre matching
-
-This keeps the view layer small while allowing production search to scale beyond table scans.
-
-## PostgreSQL
-
-SQLite remains the default because it makes the repository easy to evaluate.
-
-For PostgreSQL:
-
-```bash
-python -m pip install -r requirements-postgres.txt
-```
-
-Configure:
-
-```text
-DJANGO_DATABASE_BACKEND=postgresql
-DJANGO_DB_NAME=movieshelf
-DJANGO_DB_USER=movieshelf
-DJANGO_DB_PASSWORD=...
-DJANGO_DB_HOST=...
-DJANGO_DB_PORT=5432
-DJANGO_DB_CONN_MAX_AGE=0
-```
-
-`DJANGO_DB_CONN_MAX_AGE=0` is the safe default for ASGI. A positive value can be chosen deliberately for a WSGI deployment where persistent connections are appropriate.
-
-CI starts a real PostgreSQL service, runs migrations, loads the demo fixture, executes Django checks, and runs the test suite against PostgreSQL.
-
-## Environment variables
-
-See `.env.example` for the complete set.
-
-Boolean environment variables are parsed strictly. Invalid values fail fast instead of silently becoming false.
-
-Important production variables include:
-
-```text
-DJANGO_SECRET_KEY
-DJANGO_DEBUG=false
-DJANGO_ALLOWED_HOSTS
-DJANGO_CSRF_TRUSTED_ORIGINS
-DJANGO_DATABASE_BACKEND
-DJANGO_LOG_LEVEL
-```
-
-## Browser and accessibility testing
-
-Browser-level checks use Playwright with Chromium on desktop and mobile profiles.
-
-The suite verifies:
-
-- core public pages load successfully
-- the movie search → detail user flow
-- automated axe checks for WCAG A/AA rules across the main catalog, detail and authentication pages
-
-Run locally:
-
-```bash
-npm install
-npx playwright install chromium
-npm run test:e2e
-```
-
-## Quality checks
-
-Install development dependencies:
+Python checks:
 
 ```bash
 python -m pip install -r requirements-dev.txt
-```
-
-Run:
-
-```bash
 pip-audit -r requirements-postgres.txt
 ruff check .
 ruff format --check .
@@ -229,78 +113,56 @@ coverage run manage.py test
 coverage report
 ```
 
-CI additionally:
+Browser checks:
 
-- validates Python 3.13 and 3.14
-- loads and verifies the fictional demo fixture
-- runs against a real PostgreSQL service
-- runs Django's production `check --deploy --fail-level WARNING`
-- audits Python dependencies
-- enforces the coverage floor
+```bash
+npm install
+npx playwright install chromium
+npm run test:e2e
+```
 
-Dependabot checks both Python packages and GitHub Actions weekly.
+CI verifies:
 
-## Engineering decisions
+- Python 3.13 and 3.14;
+- migrations and demo fixture;
+- real PostgreSQL compatibility;
+- Django production checks;
+- dependency audit;
+- coverage floor;
+- Chromium desktop/mobile flows;
+- axe accessibility checks.
 
-### Django-native architecture
-The project uses Django models, forms, generic/class-based views, templates, authentication, and database constraints directly. Additional service/repository layers would add ceremony without improving this codebase at its current size.
+## Run locally
 
-### Database constraints as invariants
-Ratings, positive durations, unique genres, and duplicate credits are protected at the database level as well as through application validation.
+```bash
+python -m venv .venv
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py loaddata demo
+python manage.py runserver
+```
 
-### Strict environment configuration
-Boolean and integer environment values are validated explicitly. Critical production values fail fast with actionable configuration errors.
+Open `http://127.0.0.1:8000/`.
 
-### SQLite locally, PostgreSQL in CI
-SQLite keeps onboarding simple. PostgreSQL compatibility is not only documented: it is exercised by CI against a real PostgreSQL service.
-
-### ASGI-safe database default
-Persistent PostgreSQL connections default to disabled. WSGI deployments can opt into a positive connection max age explicitly.
-
-### Fictional demo data
-The repository does not redistribute movie posters or celebrity photographs. The included fixture contains fictional catalog records with empty image fields, allowing the application to demonstrate its UI using built-in placeholders.
-
-### Small dependency surface
-PostgreSQL support remains optional. No Docker, Redis, Celery, service container, or monitoring SDK is required to understand or run the project.
+For PostgreSQL, install `requirements-postgres.txt` and use the settings documented in `.env.example`.
 
 ## Deployment
 
-The repository includes a Render Blueprint (`render.yaml`) with:
-
-- a Django web service
-- managed PostgreSQL
-- Gunicorn
-- WhiteNoise static files
-- pre-deploy migrations
-- initial fictional demo data
-- `/health/` health checks
-- production security environment variables
+A Render Blueprint is included for a Django web service + managed PostgreSQL deployment.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/MykolaDotsenko/movieshelf)
 
-The Blueprint is intentionally provider-specific and isolated from the Django architecture. No Docker layer is required.
+A final public deployment URL is intentionally not claimed until one exists.
 
-## Portfolio status
+## Repository layout
 
-The core application, architecture, tests, CI, security settings, PostgreSQL compatibility, health check, and dependency automation are implemented.
+```text
+config/          settings, env parsing, project URLs, health view
+imdb/            models, forms, views, templates, migrations, tests
+imdb/fixtures/   deterministic fictional demo data
+docs/            screenshots
+```
 
-Implemented in source code:
+## License
 
-- production process/static-file configuration
-- Render Blueprint deployment
-- PostgreSQL full-text search
-- browser/E2E accessibility testing
-
-Still external to source control:
-
-- an activated live hosting account and final public URL
-- external monitoring/error-reporting service
-- backup infrastructure
-
-Those should be added when an actual hosting target exists.
-
-## License and third-party software
-
-The repository source is covered by the root `LICENSE` file.
-
-Third-party libraries and their licensing context are documented in `THIRD_PARTY.md`.
+See [LICENSE](LICENSE) and [THIRD_PARTY.md](THIRD_PARTY.md).
