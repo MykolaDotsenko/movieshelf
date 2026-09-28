@@ -7,7 +7,9 @@
 
 **A Django movie catalog used to demonstrate relational modelling, PostgreSQL search, authentication and production-oriented backend checks.**
 
-**Live static preview:** https://mykoladotsenko.github.io/movieshelf/\n\nGitHub Pages hosts a presentation preview built from real application captures. The full product is a Django application, so database search, authentication and other server-side flows require a Python server runtime and are intentionally not simulated on Pages.
+**Live static preview:** https://mykoladotsenko.github.io/movieshelf/
+
+GitHub Pages hosts a presentation preview built from real application captures. The full product is a Django application, so database search, authentication and other server-side flows require a Python server runtime and are intentionally not simulated on Pages.
 
 <p align="center">
   <img src="docs/screenshots/home-desktop.png" alt="MovieShelf desktop home" width="49%">
