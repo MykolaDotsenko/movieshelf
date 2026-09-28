@@ -1,6 +1,6 @@
 # MovieShelf
 
-[![CI](https://github.com/MykolaDotsenko/DjangoMovieProject/actions/workflows/ci.yml/badge.svg)](https://github.com/MykolaDotsenko/DjangoMovieProject/actions/workflows/ci.yml)
+[![CI](https://github.com/MykolaDotsenko/movieshelf/actions/workflows/ci.yml/badge.svg)](https://github.com/MykolaDotsenko/movieshelf/actions/workflows/ci.yml)
 ![Python 3.13–3.14](https://img.shields.io/badge/Python-3.13%E2%80%933.14-3776AB?logo=python&logoColor=white)
 ![Django 5.2 LTS](https://img.shields.io/badge/Django-5.2%20LTS-092E20?logo=django&logoColor=white)
 ![Coverage 97%](https://img.shields.io/badge/coverage-97%25-brightgreen)
@@ -276,7 +276,7 @@ The repository includes a Render Blueprint (`render.yaml`) with:
 - `/health/` health checks
 - production security environment variables
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/MykolaDotsenko/DjangoMovieProject)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/MykolaDotsenko/movieshelf)
 
 The Blueprint is intentionally provider-specific and isolated from the Django architecture. No Docker layer is required.
 
